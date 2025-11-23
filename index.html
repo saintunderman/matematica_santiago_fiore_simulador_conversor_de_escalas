@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Escalas Pro</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Configuración MathJax -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            
+            /* Colores para el "Recuadro Negro" */
+            --box-bg: #111827; /* Casi negro */
+            --box-text: #06b6d4; /* Cyan brillante */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* --- TARJETAS --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--bg-body);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        /* --- INPUTS --- */
+        .input-group { margin-bottom: 10px; }
+        .input-label { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block; }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        
+        .input-icon {
+            position: absolute; left: 12px; color: var(--text-secondary); pointer-events: none;
+        }
+
+        .styled-input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            font-size: 1rem;
+            color: var(--text-main);
+            background-color: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-family: 'Inter', monospace;
+        }
+        .styled-input:focus {
+            outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* --- SLIDER --- */
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        @media (max-width: 768px) { .controls-grid { grid-template-columns: 1fr; } }
+
+        .slider-box {
+            background: #f9fafb; padding: 15px 20px; border-radius: 10px; border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .slider-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; }
+        .slider-val { color: var(--primary); font-weight: bold;}
+        
+        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--primary); }
+        .helper-text { font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; }
+
+        /* --- GRÁFICO SVG --- */
+        #svg-wrapper { width: 100%; height: 420px; background: white; border-radius: 8px; }
+        
+        .axis { stroke: #9ca3af; stroke-width: 2; }
+        .grid-minor { stroke: #e5e7eb; stroke-width: 1; stroke-dasharray: 4; }
+        .tick-label { font-size: 11px; fill: #6b7280; font-family: 'Inter', sans-serif; }
+        .axis-title { font-size: 14px; font-weight: bold; fill: #374151; }
+        
+        .bg-linear { fill: rgba(59, 130, 246, 0.04); }
+        .bg-log { fill: rgba(236, 72, 153, 0.04); }
+        .conn-line { stroke-width: 1.5; stroke-opacity: 0.5; transition: all 0.3s; }
+        .dot { transition: r 0.2s; cursor: pointer; }
+        .dot:hover { r: 6; stroke: white; stroke-width: 2px; }
+        
+        /* Tooltip en el gráfico (para que coincida con el estilo negro/cyan) */
+        .tooltip-bg { fill: var(--box-bg); } 
+        .tooltip-text { fill: var(--box-text); font-weight: bold; font-size: 12px; }
+
+        /* --- CALCULADORA --- */
+        .calc-row { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
+        .calc-input-group { flex: 1; min-width: 120px; }
+
+        .btn-calc {
+            background-color: var(--primary); color: white; border: none; padding: 12px 24px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; height: 48px;
+        }
+        .btn-calc:hover { background-color: var(--primary-hover); }
+
+        /* Estilo "Recuadro Negro" solicitado */
+        .result-display {
+            margin-top: 25px;
+            padding: 20px;
+            background: var(--box-bg); /* Fondo Negro */
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--box-text); /* Texto Cyan */
+            font-weight: 700; /* Negrita */
+            border: 1px solid #374151;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Ajuste para que el MathJax herede el color Cyan */
+        .result-display .mjx-chtml { color: var(--box-text) !important; }
+        
+        .error-text { color: #ef4444; font-size: 0.9rem; margin-top: 5px; min-height: 20px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- TARJETA PRINCIPAL: GRÁFICO -->
+    <div class="card">
+        <h2>Comparador Visual de Escalas</h2>
+
+        <div class="controls-grid">
+            <div class="input-group">
+                <label class="input-label" for="staticInput">Valores de Referencia</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <input type="text" id="staticInput" class="styled-input" value="2, 5, 20, 60, 300" placeholder="Ej: 10, 50, 100...">
+                </div>
+                <div class="helper-text">Ingresa números positivos separados por comas.</div>
+            </div>
+
+            <div class="slider-box">
+                <div class="slider-header">
+                    <span>Valor Dinámico</span>
+                    <span id="sliderValDisplay" class="slider-val">50</span>
+                </div>
+                <input type="range" id="dynamicSlider" min="1" max="100" step="1" value="50">
+                <div class="helper-text">Mueve el deslizador para comparar posiciones.</div>
+            </div>
+        </div>
+
+        <div id="svg-wrapper">
+            <svg id="mainSvg" width="100%" height="100%" viewBox="0 0 800 400"></svg>
+        </div>
+    </div>
+
+    <!-- TARJETA SECUNDARIA: CALCULADORA -->
+    <div class="card">
+        <h2>Calculadora de Logaritmos</h2>
+        <!-- Se eliminó la leyenda de texto que pediste quitar -->
+
+        <div class="calc-row">
+            <div class="calc-input-group">
+                <label class="input-label">Base (\(b\))</label>
+                <input type="number" id="logBase" class="styled-input" style="padding-left:15px;" value="10">
+            </div>
+            <div class="calc-input-group">
+                <label class="input-label">Argumento (\(x\))</label>
+                <input type="number" id="logArg" class="styled-input" style="padding-left:15px;" value="20">
+            </div>
+            <button class="btn-calc" onclick="calculateLog()">Calcular</button>
+        </div>
+        
+        <div class="error-text" id="calcError"></div>
+        
+        <!-- Recuadro Negro con texto Cyan -->
+        <div class="result-display" id="calcResult">
+            $$ \log_{10}(20) \approx 1.3010 $$
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- CONFIGURACIÓN Y ELEMENTOS ---
+    const els = {
+        svg: document.getElementById('mainSvg'),
+        staticInput: document.getElementById('staticInput'),
+        slider: document.getElementById('dynamicSlider'),
+        sliderDisplay: document.getElementById('sliderValDisplay'),
+        colors: ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6']
+    };
+
+    const config = {
+        margin: { top: 30, right: 40, bottom: 40, left: 50 },
+        h: 400, w: 800, 
+        yLin: 90, yLog: 310
+    };
+
+    // --- FUNCIONES LÓGICAS ---
+    function getData() {
+        const raw = els.staticInput.value.split(',');
+        const statics = raw.map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
+        const dynamic = parseFloat(els.slider.value);
+        return { statics, dynamic };
+    }
+
+    function getScales(data) {
+        const all = [...data.statics, data.dynamic];
+        if(all.length === 0) return null;
+
+        const maxVal = Math.max(...all);
+        const minVal = Math.min(...all);
+
+        // Escala Lineal
+        let linMax;
+        if (maxVal < 10) linMax = Math.ceil(maxVal) + 1;
+        else linMax = Math.ceil(maxVal / 10) * 10 + (maxVal % 10 === 0 ? 0 : 10);
+
+        // Escala Logarítmica
+        let logMinExp = Math.floor(Math.log10(minVal));
+        let logMaxExp = Math.ceil(Math.log10(maxVal));
+        if (logMinExp === logMaxExp) logMaxExp++; 
+
+        return {
+            lin: { min: 0, max: linMax },
+            log: { min: Math.pow(10, logMinExp), max: Math.pow(10, logMaxExp) }
+        };
+    }
+
+    // --- RENDERIZADO ---
+    function render() {
+        const data = getData();
+        const scales = getScales(data);
+        if (!scales) return;
+
+        // UI Slider
+        els.sliderDisplay.textContent = data.dynamic;
+        const maxStatic = Math.max(...data.statics, 10);
+        if (parseFloat(els.slider.max) < maxStatic) els.slider.max = Math.ceil(maxStatic * 1.2);
+
+        // Limpieza
+        els.svg.innerHTML = '';
+        const width = config.w - config.margin.left - config.margin.right;
+
+        // 1. ZONAS
+        createRect(config.margin.left, 10, width, 150, 'bg-linear', 8);
+        createText(config.w/2, 40, 'Escala Lineal', 'axis-title', 'middle');
+        
+        createRect(config.margin.left, 230, width, 150, 'bg-log', 8);
+        createText(config.w/2, 370, 'Escala Logarítmica', 'axis-title', 'middle');
+
+        // 2. EJES
+        drawLinearAxis(scales.lin, width);
+        drawLogAxis(scales.log, width);
+
+        // 3. PUNTOS
+        data.statics.forEach((val, i) => {
+            drawPointSet(val, els.colors[i % els.colors.length], scales, false);
+        });
+        drawPointSet(data.dynamic, '#3b82f6', scales, true);
+    }
+
+    function drawLinearAxis(scale, width) {
+        createLine(config.margin.left, config.yLin, config.w - config.margin.right, config.yLin, 'axis');
+        const step = scale.max / 5;
+        for(let i=0; i<=5; i++) {
+            let v = i * step;
+            if (v > 10) v = Math.round(v); else v = Math.round(v * 10) / 10;
+            let x = map(v, scale.min, scale.max, config.margin.left, config.w - config.margin.right);
+            createLine(x, config.yLin - 5, x, config.yLin + 5, 'axis');
+            createText(x, config.yLin - 15, v, 'tick-label');
+        }
+    }
+
+    function drawLogAxis(scale, width) {
+        createLine(config.margin.left, config.yLog, config.w - config.margin.right, config.yLog, 'axis');
+        let curr = scale.min;
+        while(curr <= scale.max) {
+            let x = mapLog(curr, scale.min, scale.max, config.margin.left, config.w - config.margin.right);
+            createLine(x, config.yLog - 8, x, config.yLog + 8, 'axis');
+            createText(x, config.yLog + 25, formatNum(curr), 'tick-label');
+            
+            for(let k=2; k<10; k++) {
+                let sub = curr * k;
+                if(sub >= scale.max) break;
+                let sx = mapLog(sub, scale.min, scale.max, config.margin.left, config.w - config.margin.right);
+                createLine(sx, config.yLog - 4, sx, config.yLog + 4, 'grid-minor');
+            }
+            curr *= 10;
+        }
+    }
+
+    function drawPointSet(val, color, scales, isDynamic) {
+        const xLin = map(val, scales.lin.min, scales.lin.max, config.margin.left, config.w - config.margin.right);
+        const xLog = mapLog(val, scales.log.min, scales.log.max, config.margin.left, config.w - config.margin.right);
+
+        const ln = createSVG('line');
+        ln.setAttribute('x1', xLin); ln.setAttribute('y1', config.yLin);
+        ln.setAttribute('x2', xLog); ln.setAttribute('y2', config.yLog);
+        ln.setAttribute('stroke', color);
+        ln.setAttribute('class', 'conn-line');
+        if(isDynamic) {
+            ln.setAttribute('stroke-dasharray', '5,5'); ln.setAttribute('stroke-width', 3);
+        }
+        els.svg.appendChild(ln);
+
+        createCircle(xLin, config.yLin, isDynamic ? 6 : 4, color);
+        createCircle(xLog, config.yLog, isDynamic ? 6 : 4, color);
+
+        // Etiqueta Flotante Estilo Recuadro Negro (Solo Dinámico)
+        if (isDynamic) {
+            const boxW = 34, boxH = 18;
+            // Fondo negro
+            createRect(xLin - boxW/2, config.yLin + 12, boxW, boxH, 'tooltip-bg', 4);
+            // Texto Cyan
+            createText(xLin, config.yLin + 25, val, 'tooltip-text');
+        }
+    }
+
+    // --- UTILIDADES ---
+    function map(v, dMin, dMax, rMin, rMax) {
+        return rMin + (v - dMin) * (rMax - rMin) / (dMax - dMin);
+    }
+    function mapLog(v, dMin, dMax, rMin, rMax) {
+        if (v <= 0) return rMin;
+        return rMin + (Math.log10(v) - Math.log10(dMin)) * (rMax - rMin) / (Math.log10(dMax) - Math.log10(dMin));
+    }
+    function formatNum(n) {
+        if(n >= 10000) return n.toExponential(0);
+        return n.toLocaleString();
+    }
+    
+    // SVG Helpers
+    function createSVG(t) { return document.createElementNS("http://www.w3.org/2000/svg", t); }
+    function createLine(x1,y1,x2,y2,cls) {
+        const l = createSVG('line');
+        l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2); l.setAttribute('class',cls);
+        els.svg.appendChild(l);
+    }
+    function createCircle(cx,cy,r,fill) {
+        const c = createSVG('circle');
+        c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r); c.setAttribute('fill',fill); c.setAttribute('class','dot');
+        els.svg.appendChild(c);
+    }
+    function createText(x,y,txt,cls,anc='middle') {
+        const t = createSVG('text');
+        t.setAttribute('x',x); t.setAttribute('y',y); t.setAttribute('class',cls); t.setAttribute('text-anchor',anc);
+        t.textContent = txt;
+        els.svg.appendChild(t);
+    }
+    function createRect(x,y,w,h,cls,rx) {
+        const r = createSVG('rect');
+        r.setAttribute('x',x); r.setAttribute('y',y); r.setAttribute('width',w); r.setAttribute('height',h); r.setAttribute('class',cls);
+        if(rx) r.setAttribute('rx', rx);
+        els.svg.appendChild(r);
+    }
+
+    // --- CALCULADORA LÓGICA ---
+    function calculateLog() {
+        const b = parseFloat(document.getElementById('logBase').value);
+        const x = parseFloat(document.getElementById('logArg').value);
+        const err = document.getElementById('calcError');
+        
+        err.textContent = '';
+        if(isNaN(b) || isNaN(x) || b<=0 || b===1 || x<=0) {
+            err.textContent = 'Error: Verifica que Base > 0, ≠ 1 y Argumento > 0.';
+            return;
+        }
+        
+        const res = Math.log(x) / Math.log(b);
+        const isInt = Math.abs(res - Math.round(res)) < 1e-10;
+        const symbol = isInt ? '=' : '\\approx';
+        const val = isInt ? Math.round(res) : res.toFixed(4);
+        
+        const box = document.getElementById('calcResult');
+        // Aplicamos color Cyan explícitamente dentro del Latex por si acaso, aunque CSS lo maneja
+        box.innerHTML = `$$ \\color{#06b6d4}{\\log_{${b}}(${x}) ${symbol} ${val}} $$`;
+        
+        if(window.MathJax) MathJax.typesetPromise([box]);
+    }
+
+    els.staticInput.addEventListener('input', render);
+    els.slider.addEventListener('input', render);
+    render();
+
+</script>
+</body>
+</html>
