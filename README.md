@@ -1,4 +1,4 @@
-# Conversor de Escalas Pro: Lineal vs Logarítmica
+# Comparador de Escalas: Lineal vs Logarítmica
 
 ![Licencia](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0.0-green)
@@ -42,6 +42,6 @@ Esto permite que la distancia visual entre $1$ y $10$ sea idéntica a la distanc
 
 No requiere dependencias externas ni compilación. 
 
-1. Clona el repositorio:
+[1. Clona el repositorio:](https://saintunderman.github.io/matematica_santiago_fiore_simulador_conversor_de_escalas/)
    ```bash
    git clone [https://github.com/tu-usuario/nombre-del-repo.git](https://github.com/tu-usuario/nombre-del-repo.git)
