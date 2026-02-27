@@ -27,21 +27,8 @@ Una herramienta interactiva y con fines educativos diseñada para visualizar y c
 
 ---
 
-## Conceptos Matemáticos Aplicados
-
-### Transformación Logarítmica
-El corazón de la aplicación es el mapeo de valores a coordenadas de píxeles. Mientras que en la escala lineal la posición es proporcional al valor, en la logarítmica la posición es proporcional al exponente:
-
-$$x_{pixel} = offset + \left( \frac{\log_{10}(x) - \log_{10}(x_{min})}{\log_{10}(x_{max}) - \log_{10}(x_{min})} \right) \cdot width$$
-
-Esto permite que la distancia visual entre $1$ y $10$ sea idéntica a la distancia entre $10$ y $100$.
-
----
-
 ## Instalación y Uso
 
 No requiere dependencias externas ni compilación. 
 
-[1. Clona el repositorio:](https://saintunderman.github.io/matematica_santiago_fiore_simulador_conversor_de_escalas/)
-   ```bash
-   git clone [https://github.com/tu-usuario/nombre-del-repo.git](https://github.com/tu-usuario/nombre-del-repo.git)
+(https://saintunderman.github.io/matematica_santiago_fiore_simulador_conversor_de_escalas/)
