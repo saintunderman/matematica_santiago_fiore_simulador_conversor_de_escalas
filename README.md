@@ -17,16 +17,6 @@ Una herramienta interactiva y con fines educativos diseñada para visualizar y c
 
 ---
 
-## Tecnologías Utilizadas
-
-* **HTML5 & CSS3:** Estructura semántica y diseño basado en variables CSS (Custom Properties).
-* **Vanilla JavaScript (ES6+):** Arquitectura basada en el patrón de diseño **IIFE** (Immediately Invoked Function Expression) para encapsulamiento y robustez.
-* **SVG (Scalable Vector Graphics):** Generación dinámica de gráficos para una nitidez absoluta en cualquier resolución.
-* **MathJax 3:** Renderizado de fórmulas matemáticas en alta calidad.
-* **Google Fonts:** Tipografía "Inter" para máxima legibilidad.
-
----
-
 ## Instalación y Uso
 
 No requiere dependencias externas ni compilación. 
