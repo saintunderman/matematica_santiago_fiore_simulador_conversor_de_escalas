@@ -31,4 +31,11 @@ Una herramienta interactiva y con fines educativos diseñada para visualizar y c
 
 No requiere dependencias externas ni compilación. 
 
-(https://saintunderman.github.io/matematica_santiago_fiore_simulador_conversor_de_escalas/)
+https://saintunderman.github.io/matematica_santiago_fiore_simulador_conversor_de_escalas/
+
+## Licencia y Créditos
+
+Desarrollado por **Santiago Fiore**.
+
+* **Sitio Web:** https://sites.google.com/view/santiago-fiore/portada
+* **Licencia:** Creative Commons CC BY-NC-SA 4.0 (Atribución-NoComercial-CompartirIgual).
